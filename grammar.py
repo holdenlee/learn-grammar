@@ -24,7 +24,11 @@ class CFG(object):
         self.pos_to_num=dict(zip(poss, range(1,self.num_sym)))
         print(self.pos_to_num)
         self.rules_dict = {}
-        self.rules_list = []
+        self.rules_list = set([])
+    def add_rules(self,li):
+        for (x,y,z) in li:
+            add_to_dict(self.rules_dict, x, (y,z))
+        self.rules_list = self.rules_list | set(li)
     def parse(self, sent):
         words = sent.split(' ')
         w = len(words)
@@ -57,6 +61,7 @@ class CFG(object):
                     newrules[s][s+d][x] = list(st)
         print("%d rules need to be added" % mins[0,w-1,0])
         print(newrules[0][w-1][0])
+        self.add_rules(newrules[0][w-1][0])
         # now mins[0,w-1,0] is the minimum number of new rules needed to be added
         # and newrules[0,w-1,0] is a list of the rules that could be added
 
