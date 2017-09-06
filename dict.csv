@@ -3,10 +3,13 @@ apple,N
 big,A
 cat,N
 dog,N
-drink,V
-eat,V
-go,V
+drink,VT
+eat,VT
+food,N
+go,VI
 house,N
-talk,V
+sleep,VI
+talk,VI
 tall,A
 to,to
+water,N

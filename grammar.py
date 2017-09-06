@@ -122,12 +122,12 @@ print(word_dict)
 
 c = CFG(pos_dict,word_dict)
 
-c.parse("cat drink")
-c.parse("dog eat")
-c.parse("dog eat dog")
-c.parse("cat eat dog")
-c.parse("big cat eat dog")
-c.parse("big tall cat eat dog")
+c.parse("cat sleep")
+c.parse("dog talk")
+c.parse("dog eat food")
+c.parse("cat drink water")
+c.parse("big cat eat food")
+c.parse("big tall cat eat food")
 c.parse("dog go to house")
 # won't create a new one because always better to use old...
 c.parse("dog eat and drink")
