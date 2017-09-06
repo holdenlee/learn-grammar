@@ -28,17 +28,22 @@ class CFG(object):
         print(self.pos_to_num)
         self.rules_dict = {}
         self.rules_list = set([])
-    def rand_phrase(self, li, rules_dict):
+    def rand_phrase(self, li, rules_dict=None, rule=None):
         #want to make sure it uses the rule...
+        if rules_dict==None:
+            rules_dict = self.rules_dict
         li2=[]
         for x in li:
-            if x<= len(self.num_to_pos)+1 and x!=0 and (randint(0,1)==0 or not (x in self.pdict.keys())):
+            if x<= len(self.num_to_pos)+1 and x!=0 and (randint(0,1)==0 or not (x in self.pdict.keys()+[rule[0]])):
                 pos = self.num_to_pos[x]
                 words = self.pdict[pos]
                 li2.append(words[randint(0,len(words)-1)])
             else:
-                rules = rules_dict[x]
-                li2=li2+self.rand_phrase(list(rules[randint(0,len(rules)-1)]), rules_dict)
+                rules = get_from_dict(rules_dict,x)
+                if rule != None and (x==rule[0] and (len(rules)==0 or randint(0,1)==0)):
+                    li2 = li2 + self.rand_phrase([rule[1],rule[2]], rules_dict, rule)
+                else:
+                    li2 = li2+self.rand_phrase(list(rules[randint(0,len(rules)-1)]), rules_dict, rule)
         return li2
     def test_rules(self, newrules, runs=10):
         approved_rules=[]
@@ -47,7 +52,8 @@ class CFG(object):
             for i in range(runs):
                 temp_rules_dict = dict(self.rules_dict)
                 add_to_dict(temp_rules_dict,rule[0], (rule[1],rule[2]))
-                print(" ".join(self.rand_phrase([0], temp_rules_dict)))
+                print(" ".join(self.rand_phrase([0], rule=rule))) 
+                                                #temp_rules_dict)))
             print("Is this valid (Y/N)?")
             sys.stdout.flush()
             ans = raw_input()
@@ -94,7 +100,7 @@ class CFG(object):
         print("%d rules need to be added" % mins[0,w-1,0])
         nr = newrules[0][w-1][0]
         print(nr)
-        approved_rules = self.test_rules(nr)
+        approved_rules = self.test_rules(nr,10)
         self.add_rules(approved_rules)
         num_sym = max([max(tup) for tup in self.rules_list]) + 1
         # now mins[0,w-1,0] is the minimum number of new rules needed to be added
