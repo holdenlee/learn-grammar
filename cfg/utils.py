@@ -80,6 +80,19 @@ def get_frac(li, i):
     else:
         return (1-(i-j)) * li[j] + (i-j) * li[j+1]
 
+# zipped list (id, prob)
+def sample_wp(li):
+    r=random()
+    s=0
+    for (i,p) in li:
+        s += p
+        if r<=s:
+            return i
+    print('failed to sample')
+    print(r)
+    print(s)
+    return None
+
 def percentiles(li, ps):
     lis = sorted(li)
     l = len(li)
