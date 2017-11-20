@@ -1,5 +1,6 @@
 from random import randint
 from functools import partial 
+import sys
 """
 #this changes d
 def changeDict(d):
@@ -220,6 +221,9 @@ def generate_program_nl_data(N, T):
 
 
 if __name__=='__main__':
-    generate_program_nl_data(30, 6)
+    if len(sys.argv) != 3:
+        print("Error: Exactly two args are needed. The first argument is $N, the number of datapoints. \n The second argument is $T, the max tree depth.\n")
+    else:
+        generate_program_nl_data(int(sys.argv[1]), int(sys.argv[2]))
     #for tree in testInstructions:
     #    print(toNLUsingRules(blocksRules1, tree))
