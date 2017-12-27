@@ -22,6 +22,7 @@ def cd4(d):
     #d={1:1}
 """
 
+#Warning: does not currently match repeated vars (ex. "Blah $1 $1.")
 def matchLists(tree, rule, indict):
     if type(tree) is not list:
         return (False, indict)
@@ -50,6 +51,7 @@ def replaceArgs(string, d):
 """
 
 # top down
+# example of [(pattern, String)] is blocksRules1
 # [(pattern, String)] * Tree -> String 
 def toNLUsingRules(rlist, tree):
     d={}
@@ -57,13 +59,10 @@ def toNLUsingRules(rlist, tree):
         (success, d) = matchLists(tree, rule, d)
         if success:
             for k in d:
+                #if not bottomed out, recursively replace with NL
                 if type(d[k])==list:
-                    #print(d[k])
                     d[k] = toNLUsingRules(rlist, d[k])
-                    #print(d[k])
-                #print(string, k, d[k])
                 string = string.replace("$"+str(k), d[k])
-            #return replaceArgs(string, d)
             return string
     return None #failed
 
@@ -139,6 +138,7 @@ func_defs = {'add':(Add, 3, 0, 1), 'remove': (Remove, 2, 0, 1), 'cyan':(Cyan, 0,
 'all': (All, 0, 2, 0), 'with': (With, 1, 2, 1), 'not': (Not, 2, 2, 1), 'diff': (Diff, 4, 2, 1), 'leftmost': (Leftmost, 2, 2, 1), 'rightmost': (Rightmost, 2, 2, 1)}
 
 valid_input_output_func_types = [(3, 0), (2, 0), (0, 1), (0, 2), (1, 2), (2, 2), (4, 2)]
+#list(set(map(lambda tup: (tup[1], tup[2]), func_defs.values())))
 
 # organize based on output
 # (function, input_type, output_type, added_depth)
