@@ -1,4 +1,7 @@
 from ADT import *
+from CCG import *
+
+import pprint
 
 #https://stackoverflow.com/questions/14078357/python-how-can-idynamically-create-a-function-with-a-name-based-on-a-string-re
 def make_global_vars(d):
@@ -24,5 +27,8 @@ d=create_PL(
                 'Remove':[Set]}})
 
 if __name__=='__main__':
+    pp = pprint.PrettyPrinter(indent=4)
     make_global_vars(d)
     print(Add(With(Cyan),Orange))
+    li = create_CCG(d)
+    pp.pprint(li)

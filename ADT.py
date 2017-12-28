@@ -12,6 +12,8 @@ class Constructor(object):
         return (self,args)
     def __repr__(self):
         return self.name
+    def arity(self):
+        return len(self.args)
 
 #`cons` is a dict of constructor descriptions, organized by type.
 # For example, `Add : Set -> Color -> Act` would be described by
@@ -25,6 +27,7 @@ def create_PL(cons):
             d[con]=Constructor(con,typ,args)
     return d
         
+#0-indexed
 class Var(object):
     def __init__(self,num):
         self.num=num
@@ -34,5 +37,5 @@ class Var(object):
 
 if __name__=='__main__':
     c = Constructor('Add', 'Act', ['Set','Color'])
-    print(c(Var(1),Var(2)))
+    print(c(Var(0),Var(1)))
 
