@@ -103,6 +103,14 @@ blocksRules1 = [(Cyan, "cyan"),
                 (Leftmost(1), "leftmost $1"),
                 (Rightmost(1), "rightmost $1")]
 
+"""
+Shortcomings of current grammar:
+
+* Always plural
+* "Add orange to brown blocks that are not rightmost block". (A CCG setup would be better for this - treat "rightmost" as function and keep it that way rather than applying it to "block" - We would omit 'block'.)
+
+"""
+
 testInstructions = [Cyan,
                     Add(With(Cyan),Orange),
                     Remove(With(Brown)),
@@ -223,7 +231,7 @@ def generate_program_nl_data(N, T):
 if __name__=='__main__':
     if len(sys.argv) != 3:
         print("Error: Exactly two args are needed. The first argument is $N, the number of datapoints. \n The second argument is $T, the max tree depth.\n")
+        for tree in testInstructions:
+            print(toNLUsingRules(blocksRules1, tree))
     else:
         generate_program_nl_data(int(sys.argv[1]), int(sys.argv[2]))
-    #for tree in testInstructions:
-    #    print(toNLUsingRules(blocksRules1, tree))
