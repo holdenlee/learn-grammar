@@ -23,9 +23,6 @@ def concat(lli, s='l'):
 def list_union(a,b):
     return list(set(a) | set(b))
 
-def lines(s):
-    return s.split('\n')
-
 def unzip(li):
     return ([x for (x,y) in li], [y for (x,y) in li])
 
@@ -122,6 +119,17 @@ def remove_chars(cs, s):
     rx = '[' + re.escape(cs) + ']'
     return re.sub(rx, '', s)
 
+def lines(s):
+    return s.split('\n')
+
+def unlines(li):
+    return '\n'.join(li)
+
+def words(s):
+    return s.split(' ')
+
+def unwords(li):
+    return ' '.join(li)
 #np.asarray(
 
 """

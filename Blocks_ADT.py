@@ -1,5 +1,6 @@
 from ADT import *
 from CCG import *
+from utils import *
 
 import pprint
 
@@ -23,15 +24,13 @@ cons_dict = {Color : {'Cyan':[],
                 'Rightmost':[Set]},
          Act : {'Add':[Set,Color],
                 'Remove':[Set]}} 
-d=create_PL(cons_dict)
 #Note I use Int=intersection rather than Diff as originally, because Diff(f,g)=Int(f,Not(g))
 
 if __name__=='__main__':
+    dic=create_PL(cons_dict)
     pp = pprint.PrettyPrinter(indent=4)
-    make_global_vars(d)
-    print(Add(With(Cyan),Orange))
-    li = create_CCG(d)
-    pp.pprint(li)
+    make_global_vars(dic)
+    #print(Add(With(Cyan),Orange))
     blocksRules1 = [(Cyan(), "cyan"),
                     (Brown(), "brown"),
                     (Red(), "red"),
@@ -64,7 +63,6 @@ if __name__=='__main__':
                     (Rightmost(All()), "rightmost block"),
                     (Leftmost(1), "leftmost $1"),
                     (Rightmost(1), "rightmost $1")]
-
     testInstructions = [Cyan(),
                         Add(With(Cyan()),Orange()),
                         Remove(With(Brown())),
@@ -74,6 +72,13 @@ if __name__=='__main__':
                         Add(Diff(With(Brown()),Rightmost(All())), Orange()),
                         Add(All(), Orange())]
     for tree in testInstructions:
-        print(toNLUsingRules(blocksRules1, tree))
-        print(toNLUsingRules(blocksRules2, tree))
-
+        #print(toNLUsingRules(blocksRules1, tree))
+        #print(toNLUsingRules(blocksRules2, tree))
+        pass
+    log_form = Remove(With(Brown()))
+    sent = words(toNLUsingRules(blocksRules1, log_form))
+    print(log_form, sent)
+    cands = gen_cands(log_form)
+    params = {}
+    #NEED TO ADD IDENTITY PARSES
+    print(parse(sent,log_form,cands,params))
