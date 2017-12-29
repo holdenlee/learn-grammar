@@ -1,5 +1,7 @@
+from utils import *
 #Emulates algebraic data types
 
+#constructors are assumed to be uniquely identified by name (no overloading)
 class Constructor(object):
     def __init__(self,name,typ,args):
         self.name=name
@@ -12,6 +14,10 @@ class Constructor(object):
         return (self,args)
     def __repr__(self):
         return self.name
+    def __eq__(self,other):
+        return (type(other)==Constructor) and (other.name==self.name)
+    def __hash__(self):
+        return hash(self.name)
     def arity(self):
         return len(self.args)
 
@@ -23,6 +29,16 @@ def get_all_names(ast,s=set()):
     s.add(ast[0].name)
     for child in ast[1]:
         get_all_names(child,s)
+    return s
+
+#traverse tree to get all constructors in an AST
+def get_all_cons(ast,s=set()):
+    if not(isinstance(ast,tuple)):
+        return s
+    #print(ast[0].name)
+    s.add(ast[0])
+    for child in ast[1]:
+        get_all_cons(child,s)
     return s
 
 #`cons` is a dict of constructor descriptions, organized by type.
@@ -44,8 +60,22 @@ class Var(object):
         self.typ='unknown'
     def __repr__(self):
         return ('var'+str(self.num)+':'+self.typ)
+    def decr(self):
+        self.num-=1
+        return self
 
-def matchLists(tree, rule, indict):
+def papply(ast, x):
+    """
+    Partial application
+    Example:
+    papply(cons(Var(1),Var(0)),x)==cons(Var(0),x)
+    Substitutes x for Var(0).
+    All other variables are decremented by 1.
+    """
+    return deepmap(lambda v:
+                   (x if v.num==0 else v.decr()) if isinstance(v,Var) else v, ast)
+
+def matchLists(tree, rule, indict={}):
     d = indict.copy()
     if isinstance(rule,Var):
         d[rule.num]=tree
@@ -87,4 +117,5 @@ if __name__=='__main__':
     a = Constructor('All','Set',[])
     print(c(a(),Var(0)))
     print(get_all_names(c(a(),Var(0))))
+    print(papply(c(Var(1),Var(0)), 'x'))
     

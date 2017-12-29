@@ -21,10 +21,10 @@ cons_dict = {Color : {'Cyan':[],
                 'Int':[Set,Set],
                 'Leftmost':[Set],
                 'Rightmost':[Set]},
-         #Note I use Int=intersection rather than Diff as originally, because Diff(f,g)=Int(f,Not(g))
          Act : {'Add':[Set,Color],
                 'Remove':[Set]}} 
 d=create_PL(cons_dict)
+#Note I use Int=intersection rather than Diff as originally, because Diff(f,g)=Int(f,Not(g))
 
 if __name__=='__main__':
     pp = pprint.PrettyPrinter(indent=4)
@@ -43,7 +43,6 @@ if __name__=='__main__':
                     (Not(1), "not $1"),
                     #(Not(1), "all but $1"),
                     (Int(1,2), "$1 that are $2"),
-                    #(Diff(1,2), "$1 that are not $2"),
                     (Leftmost(All()), "leftmost block"),
                     (Rightmost(All()), "rightmost block"),
                     (Leftmost(1), "leftmost $1"),
@@ -58,7 +57,6 @@ if __name__=='__main__':
                     (Remove(1), "Remove $1"),
                     (All(), "all blocks"),
                     (With(1), "$1 blocks"),
-                    #(Not(1), "all but $1"),
                     (Diff(1,2), "$1 except $2"),
                     (Int(1,2), "$1 that are $2"),
                     (Not(1), "not $1"),

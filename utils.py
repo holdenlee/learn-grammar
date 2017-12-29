@@ -32,9 +32,11 @@ def unzip(li):
 def mapkw(f, li):
     return [f(*l) for l in li]
 
-def deepmap(f,li):
+def deepmap(f,li,tup=True):
     if isinstance(li, list):
         return [deepmap(f, x) for x in li]
+    elif tup and isinstance(li,tuple):
+        return tuple([deepmap(f, x,True) for x in li])
     else:
         return f(li)
 
