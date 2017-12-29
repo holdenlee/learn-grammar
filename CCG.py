@@ -101,17 +101,22 @@ def get_subtrees(log_form, s=set()):
     return None #arity>2 not implemented
 
 #need to keep record high
-#arr[i][j][(ccg_type,ast)]=[value, highest, highest_parse]
-#DOES NOT INCLUDE TIES RIGHT NOW. Todo: add ties
+#arr[i][j][(ccg_type,ast)]=[value, highest, highest_parse,hi_parse_set]
 def update_dp_entry(arr,i,j,entry,l_entry,r_entry): #,mid
     #print(l_entry,r_entry)
     val = l_entry[0]*r_entry[0]
+    hival = l_entry[1]*r_entry[1]
     if not(entry in arr[i][j]):
-        arr[i][j][entry]=[0,0,None]
+        arr[i][j][entry]=[0,0,None,set()]
     arr[i][j][entry][0]+=val
-    if val>arr[i][j][entry][1]:
-        arr[i][j][entry][1]=val
+    if hival==arr[i][j][entry][1]:
+        #add to hi_parse_set
+        arr[i][j][entry][3]+=l_entry[3]
+        arr[i][j][entry][3]+=r_entry[3]
+    if hival>arr[i][j][entry][1]:
+        arr[i][j][entry][1]=hival
         arr[i][j][entry][2]=(i,j,l_entry[2],r_entry[2])
+        arr[i][j][entry][3]=l_entry[3].union(r_entry[3])
 
 
 def parse(sent,log_form,cands,params,s_type='Act',word_limit=2,default_theta=0.01):
@@ -143,13 +148,15 @@ def parse(sent,log_form,cands,params,s_type='Act',word_limit=2,default_theta=0.0
                         #(ccg_type,ast)=key
                         theta=params[words][key]
                         val = math.exp(theta)
-                        arr[i][j][key] = [val,val, (i,j,key)]
-                        #for now, assume that these parses can only be attained directly, and not from building up from subparses (UPDATE to use `update_dp_entry`)
+                        #create entry
+                        arr[i][j][key] = [val,val, (i,j,key), set()]
+                        #for now, assume that these parses can only be attained directly, and not from building up from subparses (TODO use `update_dp_entry` instead)
                 for cand in cands:
                     #if candidate is not already included, parse it with score `default_theta`.
                     if not(words in params and cand in params[words]):
                         val = math.exp(default_theta)
-                        arr[i][j][cand] = [val,val,(i,j,cand)]
+                        #create entry
+                        arr[i][j][cand] = [val,val,(i,j,cand),set([(words,cand)])]
             #0<=k<d
             for k in range(d):
                 #look for right apps
