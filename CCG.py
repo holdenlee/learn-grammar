@@ -49,3 +49,13 @@ def create_CCG(consd):
         l += li
     return l
             
+#generate candidates given program and ccg rules (in the form (list) output by create_ccg)
+def gen_cands(program,ccg):
+    names = get_all_names(program)
+    li=[]
+    for entry in names:
+        (ccg_type,ast) = entry
+        if ast[0].name in names:
+            li+=entry
+    return li
+

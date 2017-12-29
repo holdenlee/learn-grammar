@@ -32,3 +32,32 @@ if __name__=='__main__':
     print(Add(With(Cyan),Orange))
     li = create_CCG(d)
     pp.pprint(li)
+    blocksRules1 = [(Cyan(), "cyan"),
+                    (Brown(), "brown"),
+                    (Red(), "red"),
+                    (Orange(), "orange"),
+                    (Add(1,2), "Add $2 to $1"),
+                    (Remove(1), "Remove $1"),
+                    (All(), "all blocks"),
+                    (With(1), "$1 blocks"),
+                    (Not(1), "not $1"),
+                    #(Not(1), "all but $1"),
+                    (Int(1,2), "$1 that are $2"),
+                    #(Diff(1,2), "$1 that are not $2"),
+                    (Leftmost(All()), "leftmost block"),
+                    (Rightmost(All()), "rightmost block"),
+                    (Leftmost(1), "leftmost $1"),
+                    (Rightmost(1), "rightmost $1")]
+    def Diff(x,y):
+        return Int(x,Not(y))
+    testInstructions = [Cyan(),
+                        Add(With(Cyan()),Orange()),
+                        Remove(With(Brown())),
+                        Add(Leftmost(With(Orange())), Red()),
+                        Add(All(), Brown()),
+                        Remove(Leftmost(All())),
+                        Add(Diff(With(Brown()),Rightmost(All())), Orange()),
+                        Add(All(), Orange())]
+    for tree in testInstructions:
+        print(toNLUsingRules(blocksRules1, tree))
+

@@ -15,6 +15,16 @@ class Constructor(object):
     def arity(self):
         return len(self.args)
 
+#traverse tree to get all names of constructors in an AST
+def get_all_names(ast,s=set()):
+    if not(isinstance(ast,tuple)):
+        return s
+    #print(ast[0].name)
+    s.add(ast[0].name)
+    for child in ast[1]:
+        get_all_names(child,s)
+    return s
+
 #`cons` is a dict of constructor descriptions, organized by type.
 # For example, `Add : Set -> Color -> Act` would be described by
 # "Add": ["Set", "Color"]
@@ -35,7 +45,46 @@ class Var(object):
     def __repr__(self):
         return ('var'+str(self.num)+':'+self.typ)
 
+def matchLists(tree, rule, indict):
+    d = indict.copy()
+    if isinstance(rule,Var):
+        d[rule.num]=tree
+        return (True, d)
+    if type(rule)==int:
+        d[rule]=tree
+        return (True,d)
+    if type(tree)!=tuple:
+        return (False, indict)
+    (cons, args) = tree
+    (rcons, rargs) = rule
+    if cons.name!=rcons.name:
+        return (False, indict)
+    for i in range(len(args)):
+        (success, d) = matchLists(args[i], rargs[i], d)
+        if not success:
+            return (False, indict)
+    return (True, d)
+
+def toNLUsingRules(rlist, tree):
+    d={}
+    for (rule, string) in rlist:
+        (success, d) = matchLists(tree, rule, d)
+        if success:
+            #print(d)
+            for k in d:
+                #if not bottomed out, recursively replace with NL
+                #print(type(d[k]))
+                if type(d[k])==tuple:
+                    d[k] = toNLUsingRules(rlist, d[k])
+                string = string.replace("$"+str(k), d[k])
+            return string
+    return None #failed
+
+
 if __name__=='__main__':
     c = Constructor('Add', 'Act', ['Set','Color'])
     print(c(Var(0),Var(1)))
-
+    a = Constructor('All','Set',[])
+    print(c(a(),Var(0)))
+    print(get_all_names(c(a(),Var(0))))
+    
