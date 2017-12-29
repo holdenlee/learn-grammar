@@ -75,6 +75,7 @@ if __name__=='__main__':
         #print(toNLUsingRules(blocksRules1, tree))
         #print(toNLUsingRules(blocksRules2, tree))
         pass
+    """
     log_form = Remove(With(Brown()))
     sent = words(toNLUsingRules(blocksRules1, log_form))
     print(log_form, sent)
@@ -82,3 +83,37 @@ if __name__=='__main__':
     params = {}
     #NEED TO ADD IDENTITY PARSES
     pp.pprint(parse(sent,log_form,cands,params))
+    """
+    #A longer sentence
+    
+    #log_form = Add(Diff(With(Brown()),Rightmost(All())), Orange())
+    #sent = words(toNLUsingRules(blocksRules1, log_form))
+    #sent = words("Add orange brown blocks that are not rightmost block.")
+    
+    log_form = Add(With(Brown()), Orange())
+    sent = words("Add orange brown blocks")
+    print(log_form, sent)
+    cands = gen_cands(log_form)
+    print(cands)
+    params = {}
+    #NEED TO ADD IDENTITY PARSES
+    pp.pprint(parse(sent,log_form,cands,params))
+    """
+    print(Brown())
+    print(With(Brown()))
+    subtrees = get_subtrees(With(Brown()))
+    print(subtrees)
+    lf = Add(With(Brown),Orange())
+    subtrees = get_subtrees(lf)
+    print(subtrees)
+    (ccg_type, ast) = (FS(FS('Act','Set'),'Color'), Add(Var(1),Var(0)))
+    (success, dic) = matchLists(ccg_type, FS(Var(0),Var(1)))
+    if success:
+        (ccg_type2,ast2)=('Color', Orange())
+        if ccg_type2==dic[1]:
+            ast3 = papply(ast,ast2)
+            entry=(dic[0],ast3)
+            #print(ast3 in subtrees)
+            print(entry)
+            print(ast3 in subtrees)
+    """

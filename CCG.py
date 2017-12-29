@@ -81,6 +81,9 @@ def gen_cands(log_form):
     """
 
 def get_subtrees(log_form, s=set()):
+    if isinstance(log_form, Constructor):
+        return log_form
+        #this isn't supposed to happen, but it does...
     cons = log_form[0]
     args = log_form[1]
     s.add(log_form)
@@ -91,10 +94,10 @@ def get_subtrees(log_form, s=set()):
         get_subtrees(args[0],s)
         return s
     if cons.arity()==2:
-        s += set([cons(Var(0),args[1]),
-                  cons(args[0],Var(0)),
-                  cons(Var(0),Var(1)),
-                  cons(Var(1),Var(0))])
+        s = s.union(set([cons(Var(0),args[1]),
+                         cons(args[0],Var(0)),
+                         cons(Var(0),Var(1)),
+                         cons(Var(1),Var(0))]))
         get_subtrees(args[0],s)
         get_subtrees(args[1],s)
         return s
@@ -156,6 +159,7 @@ def parse(sent,log_form,cands,params,s_type='Act',word_limit=2,default_theta=0.0
                     #if candidate is not already included, parse it with score `default_theta`.
                     if not(words in params and cand in params[words]):
                         val = math.exp(default_theta)
+                        #print("candidate",cand)
                         #create entry
                         arr[i][j][cand] = [val,val,(i,j,cand),set([(words,cand)])]
             #0<=k<d
@@ -193,14 +197,35 @@ def parse(sent,log_form,cands,params,s_type='Act',word_limit=2,default_theta=0.0
                                 if ast3 in subtrees:
                                     update_dp_entry(arr,i,j,entry,l_entry,r_entry)
     if not((s_type,log_form) in arr[0][l-1]):
-        """
+        
         pp = pprint.PrettyPrinter(indent=1)
         #pp.pprint(arr)
         for i in range(l):
             for j in range(l):
                 print((i,j))
                 pp.pprint(arr[i][j])
-        """
+        
         return "Failed to parse."
     #[value, highest, highest_parse] = arr[0][n-1][(s_type,log_form)]
     return arr[0][l-1][(s_type,log_form)]
+
+"""
+if __name__=='__main__':
+    #testing
+    Add = Constructor('Add', 'A', ['S','C'])
+    Orange = Constructor('Orange', 'C', [])
+    Brown = Constructor('Brown', 'C', [])
+    With = Constructor('With', 'S', ['C'])
+    lf = Add(With(Brown),Orange())
+    subtrees = get_subtrees(lf)
+    (ccg_type, ast) = (FS(FS('A','S'),'C'), Add(Var(1),Var(0)))
+    (success, dic) = matchLists(ccg_type, FS(Var(0),Var(1)))
+    if success:
+        (ccg_type2,ast2)=('C', Orange())
+        if ccg_type2==dic[1]:
+            ast3 = papply(ast,ast2)
+            entry=(dic[0],ast3)
+            #print(ast3 in subtrees)
+            print(entry)
+            print(ast3 in subtrees)
+"""

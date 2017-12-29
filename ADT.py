@@ -11,6 +11,9 @@ class Constructor(object):
         for (n,arg) in enumerate(args):
             if isinstance(arg,Var):
                 arg.typ=self.args[n]
+        #print('calling')
+        #print(args)
+        #print(type(args))
         return (self,args)
     def __repr__(self):
         return self.name
@@ -55,14 +58,18 @@ def create_PL(cons):
         
 #0-indexed
 class Var(object):
-    def __init__(self,num):
+    def __init__(self,num,typ='unknown'):
         self.num=num
-        self.typ='unknown'
+        self.typ=typ
     def __repr__(self):
         return ('var'+str(self.num)+':'+self.typ)
+    def __eq__(self,other):
+        return self.num==other.num
+    def __hash__(self):
+        return hash(self.num)
     def decr(self):
-        self.num-=1
-        return self
+        #self.num-=1 #need to copy
+        return Var(self.num-1,self.typ)
 
 def papply(ast, x):
     """
@@ -109,7 +116,6 @@ def toNLUsingRules(rlist, tree):
                 string = string.replace("$"+str(k), d[k])
             return string
     return None #failed
-
 
 if __name__=='__main__':
     c = Constructor('Add', 'Act', ['Set','Color'])
