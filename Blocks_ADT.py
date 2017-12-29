@@ -50,6 +50,23 @@ if __name__=='__main__':
                     (Rightmost(1), "rightmost $1")]
     def Diff(x,y):
         return Int(x,Not(y))
+    blocksRules2 = [(Cyan(), "cyan"),
+                    (Brown(), "brown"),
+                    (Red(), "red"),
+                    (Orange(), "orange"),
+                    (Add(1,2), "Add $2 to $1"),
+                    (Remove(1), "Remove $1"),
+                    (All(), "all blocks"),
+                    (With(1), "$1 blocks"),
+                    #(Not(1), "all but $1"),
+                    (Diff(1,2), "$1 except $2"),
+                    (Int(1,2), "$1 that are $2"),
+                    (Not(1), "not $1"),
+                    (Leftmost(All()), "leftmost block"),
+                    (Rightmost(All()), "rightmost block"),
+                    (Leftmost(1), "leftmost $1"),
+                    (Rightmost(1), "rightmost $1")]
+
     testInstructions = [Cyan(),
                         Add(With(Cyan()),Orange()),
                         Remove(With(Brown())),
@@ -60,4 +77,5 @@ if __name__=='__main__':
                         Add(All(), Orange())]
     for tree in testInstructions:
         print(toNLUsingRules(blocksRules1, tree))
+        print(toNLUsingRules(blocksRules2, tree))
 
