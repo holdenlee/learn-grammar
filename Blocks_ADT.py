@@ -11,8 +11,7 @@ def make_global_vars(d):
 Color = 'Color'
 Act = 'Act'
 Set = 'Set'
-d=create_PL(
-        {Color : {'Cyan':[],
+cons_dict = {Color : {'Cyan':[],
                   'Brown':[],
                   'Red':[],
                   'Orange':[]},
@@ -24,7 +23,8 @@ d=create_PL(
                 'Rightmost':[Set]},
          #Note I use Int=intersection rather than Diff as originally, because Diff(f,g)=Int(f,Not(g))
          Act : {'Add':[Set,Color],
-                'Remove':[Set]}})
+                'Remove':[Set]}} 
+d=create_PL(cons_dict)
 
 if __name__=='__main__':
     pp = pprint.PrettyPrinter(indent=4)
