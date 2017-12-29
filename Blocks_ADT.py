@@ -81,4 +81,4 @@ if __name__=='__main__':
     cands = gen_cands(log_form)
     params = {}
     #NEED TO ADD IDENTITY PARSES
-    print(parse(sent,log_form,cands,params))
+    pp.pprint(parse(sent,log_form,cands,params))

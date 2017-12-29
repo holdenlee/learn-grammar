@@ -102,6 +102,7 @@ def get_subtrees(log_form, s=set()):
 
 #need to keep record high
 #arr[i][j][(ccg_type,ast)]=[value, highest, highest_parse,hi_parse_set]
+#hi_parse_set includes new things to add!
 def update_dp_entry(arr,i,j,entry,l_entry,r_entry): #,mid
     #print(l_entry,r_entry)
     val = l_entry[0]*r_entry[0]
@@ -111,8 +112,8 @@ def update_dp_entry(arr,i,j,entry,l_entry,r_entry): #,mid
     arr[i][j][entry][0]+=val
     if hival==arr[i][j][entry][1]:
         #add to hi_parse_set
-        arr[i][j][entry][3]+=l_entry[3]
-        arr[i][j][entry][3]+=r_entry[3]
+        arr[i][j][entry][3]=arr[i][j][entry][3].union(l_entry[3])
+        arr[i][j][entry][3]=arr[i][j][entry][3].union(r_entry[3])
     if hival>arr[i][j][entry][1]:
         arr[i][j][entry][1]=hival
         arr[i][j][entry][2]=(i,j,l_entry[2],r_entry[2])
