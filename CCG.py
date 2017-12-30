@@ -147,7 +147,7 @@ def lr_apps(f,arr,i,mid,j,has_ast=True):
                         comb_key  =(dic[0],ast3)
                     else:
                         comb_key = dic[0]
-                    #print(ast3 in subtrees)
+
                     f(i,mid,j,l_key,r_key,comb_key)        
 
 """
@@ -203,9 +203,9 @@ def inside_lf(sent,log_form,params,cands=[],word_limit=2,default_theta=0.01,exte
     phrase_locs = {}
     if extended:
         def comb_fun(i,j,k,l_key,r_key,comb_key):
-            l_entry=arr[i][i+k][l_key]
-            r_entry=arr[i+k+1][j][r_key]
-            update_dp_entry(arr,i,j,comb_key,l_entry,r_entry)
+            l_entry=arr[i][j][l_key]
+            r_entry=arr[j+1][k][r_key]
+            update_dp_entry(arr,i,k,comb_key,l_entry,r_entry)
     else:
         def comb_fun(i,j,k,l_key,r_key,comb_key):
             dict_add(alpha[i][k], comb_key, alpha[i][j][l_key]*alpha[j+1][k][r_key])
@@ -243,6 +243,7 @@ def parse(sent,log_form,params,cands=[],s_type='Act',word_limit=2,default_theta=
     Args: See inside_lf
         s_type (string): type of sentence
     """
+    l=len(sent)
     arr,_ = inside_lf(sent,log_form,params,cands,word_limit,default_theta,extended=True)
     if not((s_type,log_form) in arr[0][l-1]):
         if verbose:
