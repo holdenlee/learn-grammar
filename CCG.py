@@ -103,6 +103,12 @@ def get_subtrees(log_form, s=set()):
         return s
     return None #arity>2 not implemented
 
+def dict_add(d,k,v):
+    if k in d:
+        d[k] += v
+    else:
+        d[k]=v
+
 #need to keep record high
 #arr[i][j][(ccg_type,ast)]=[value, highest, highest_parse,hi_parse_set]
 #hi_parse_set includes new things to add!
@@ -208,6 +214,84 @@ def parse(sent,log_form,cands,params,s_type='Act',word_limit=2,default_theta=0.0
         return "Failed to parse."
     #[value, highest, highest_parse] = arr[0][n-1][(s_type,log_form)]
     return arr[0][l-1][(s_type,log_form)]
+
+#f(i,mid,j,l_key,r_key,comb_key)
+#search in arr for key
+def lr_apps(f,arr,i,mid,j):
+    #look for A/B+B
+    for l_key in arr[i][mid]:
+        #l_entry = arr[i][mid][l_key]
+        (ccg_type,ast)=l_key
+        (success, dic) = matchLists(ccg_type, FS(Var(0),Var(1)))
+        if success:
+            for r_key in arr[mid+1][j]:
+                #r_entry = arr[mid+1][j][r_key]
+                (ccg_type2,ast2)=r_key
+                if ccg_type2==dic[1]:
+                    ast3 = papply(ast,ast2)
+                    comb_key  =(dic[0],ast3)
+                    #print(ast3 in subtrees)
+                    f(i,mid,j,l_key,r_key,comb_key)
+    #look for B+A\B
+    for r_key in arr[mid+1][j]:
+        (ccg_type,ast)=r_key
+        (success, dic) = matchLists(ccg_type, BS(Var(0),Var(1)))
+        if success:
+            for l_key in arr[i][mid]:
+                #r_entry = arr[mid+1][j][r_key]
+                (ccg_type2,ast2)=l_key
+                if ccg_type2==dic[1]:
+                    ast3 = papply(ast,ast2)
+                    comb_key  =(dic[0],ast3)
+                    #print(ast3 in subtrees)
+                    f(i,mid,j,l_key,r_key,comb_key)        
+
+def outside_given_lf(sent,log_form,params,s_type,alpha):
+    l = len(sent)
+    beta = [[{} for i in range(l)] for j in range(l)]
+    #B->AC
+    def comb_fun_l(i,j,k,l_key,r_key,comb_key):
+        if comb_key in alpha[i][k]:
+            if not(l_key in beta[i][j]):
+                beta[i][j][l_key]=0
+                beta[i][j][l_key] += alpha[j+1][k][r_key]*beta[i][k][comb_key]
+    #B->CA
+    def comb_fun_r(i,j,k,l_key,r_key,comb_key):
+        if comb_key in alpha[i][k]:
+            if not(r_key in beta[j+1][k]):
+                beta[j+1][k][r_key]=0
+                beta[j+1][k][r_key] += alpha[i][j][l_key]*beta[i][k][comb_key]
+    for d in range(l-1,-1,-1):
+        for i in range(l-d):
+            j=i+d
+            if d==l-1:
+                beta[i][j][(s_type,log_form)]=1
+            for k in range(j+1,l):
+                #B->AC
+                lr_apps(comb_fun_l,alpha,i,j,k)
+            for k in range(0,i):
+                #B->CA
+                lr_apps(comb_fun_r,alpha,k,i-1,j)
+    return beta
+    #mu(A,i,j)=alpha(A,i,j)beta(A,i,j)
+                    
+
+def io_given_lf(sent,log_form,params,s_type='Act'):
+    #INSIDE: just use parse.
+    arr= parse(sent,log_form,[],params,s_type,word_limit=0,default_theta=0)
+    #throw away the irrelevant information (best parse tree, etc.)
+    alpha = deepmap(lambda d: map_vals(lambda v: v[0], d), arr)
+    #OUTSIDE
+    beta = outside_given_lf(sent,log_form,params,s_type,alpha)
+    l = len(sent)
+    counts={}
+    for i in range(l):
+        for k in beta[i][i]:
+            dict_add(counts,k,alpha[i][i]*beta[i][i])
+    return counts
+
+def io_all(sent,params):
+    pass
 
 """
 if __name__=='__main__':
