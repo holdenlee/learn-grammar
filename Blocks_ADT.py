@@ -82,7 +82,7 @@ if __name__=='__main__':
     cands = gen_cands(log_form)
     params = {}
     #NEED TO ADD IDENTITY PARSES
-    pp.pprint(parse(sent,log_form,cands,params))
+    pp.pprint(parse(sent,log_form,params,cands))
     """
     #A longer sentence
     
@@ -97,7 +97,7 @@ if __name__=='__main__':
     print(cands)
     params = {}
     #NEED TO ADD IDENTITY PARSES
-    pp.pprint(parse(sent,log_form,cands,params))
+    pp.pprint(parse(sent,log_form,params,cands))
     """
     print(Brown())
     print(With(Brown()))

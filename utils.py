@@ -203,6 +203,20 @@ def map_keys(f, d):
 def map_vals(f, d):
     return {k : f(v) for (k,v) in d.items()}
 
+def dict_add_with_default(default, binop, d,k,v):
+    if not(k in d):
+        d[k] = default
+    d[k] = binop(d[k],v)
+    
+def dict_add(d,k,v):
+    if k in d:
+        d[k] += v
+    else:
+        d[k]=v
+
+def dict_ladd(d,k,v):
+    return dict_add_with_default([],lambda x,y: x+[y],d,k,v)
+
 """
 Print functions
 """
