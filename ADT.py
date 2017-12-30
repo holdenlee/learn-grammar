@@ -24,6 +24,25 @@ class Constructor(object):
     def arity(self):
         return len(self.args)
 
+def print_ast(ast):
+    if isinstance(ast,Constructor):
+        return ast.name
+    if isinstance(ast,tuple):
+        name = ast[0].name
+        if name[0].isalpha() or ast[0].arity()!=2:
+            return ("%s(%s)" % (name, ",".join([print_ast(ast2) for ast2 in ast[1]])))
+        else: #assume infix
+            return ("(%s%s%s)" % (print_ast(ast[1][0]), name, print_ast(ast[1][1])))
+        print("a=%d,b=%d" % (f(x,n),g(x,n)))
+    return str(ast)
+
+def print_lex(lex):
+    for (phrase,d) in lex.iteritems():
+        print(phrase)
+        for ((ccg_type,ast),theta) in d.iteritems():
+            print(" "+print_ast(ccg_type)+" : "+print_ast(ast))
+            print("  "+str(theta))
+
 #traverse tree to get all names of constructors in an AST
 def get_all_names(ast,s=set()):
     if not(isinstance(ast,tuple)):
