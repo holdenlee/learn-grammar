@@ -328,12 +328,14 @@ def io_given_lf(sent,log_form,params,s_type='Act',word_limit=2,v=1):
     #OUTSIDE
     beta = outside_given_lf(sent,log_form,params,s_type,alpha,v=v)
     l = len(sent)
+    #Normalizing constant
+    Z = alpha[0][l-1][(s_type,log_form)]
     counts={}
     for (phrase,li) in phrase_locs.iteritems():
         if not(phrase in counts):
             counts[phrase]={}
         for entry in params[phrase]:
-            counts[phrase][entry] = math.exp(params[phrase][entry])*sum([beta[i][j][entry] for (i,j) in li if entry in beta[i][j]])
+            counts[phrase][entry] = math.exp(params[phrase][entry])*sum([beta[i][j][entry] for (i,j) in li if entry in beta[i][j]])/Z
     if v>=1:
         print("Counts given AST:")
         print("=================")
@@ -406,7 +408,7 @@ def outside_all(sent,params,alpha,v=1):
         print(v)
     return beta
 
-def io_all(sent,params,v=1):
+def io_all(sent,params,s_type='Act',v=1):
     """
     Full IO algorithm, not given logical form
     `params` is in form `{tuple(string): {(ccg_type, ast): float}}`
@@ -422,6 +424,9 @@ def io_all(sent,params,v=1):
             dict_add(params2[phrase],ccg_type,math.exp(params[phrase][k])) #exponentiate here
     alpha, phrase_locs = inside_all(sent, params2)
     beta = outside_all(sent,params2,alpha)
+    l = len(sent)
+    #normalization constant
+    Z = alpha[0][l-1][s_type]
     counts={}
     #print("BETA")
     #print(beta)
@@ -432,7 +437,7 @@ def io_all(sent,params,v=1):
         #print(phrase,li,params[phrase])
         #use original `params` here. remember to exp
         for entry in params[phrase]:
-            counts[phrase][entry] = math.exp(params[phrase][entry])*sum([beta[i][j][entry[0]] for (i,j) in li if entry[0] in beta[i][j]]) #check this is OK
+            counts[phrase][entry] = math.exp(params[phrase][entry])*sum([beta[i][j][entry[0]] for (i,j) in li if entry[0] in beta[i][j]])/Z #check this is OK
             #entry[0] is the ccg_type, only that matters here
     #print("counts", counts)
     if v>=1:
@@ -460,7 +465,7 @@ def estimate1(params,ex,alpha,s_type='Act',word_limit=2,v=0):
     (sent,ast)=ex
     counts_lf = io_given_lf(sent,ast,params,s_type=s_type,word_limit=word_limit,v=v)
     #(sent,log_form,params,s_type='Act',word_limit=2,v=1
-    counts_all = io_all(sent,params,v=v)
+    counts_all = io_all(sent,params,s_type=s_type,v=v)
     #Calculate gradients. (Gradient is E(count|S,L) - E(count|S), see calculation in ZC, p. 4.)
     for (phrase,d) in counts_lf.iteritems():
         for (entry, theta) in d.iteritems():

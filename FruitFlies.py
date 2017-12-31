@@ -27,10 +27,10 @@ sparams = {('b',): {(FS(S,N),B(Var(0))): b},
 ssent = tuple(words('b a'))
 sast = B(A())
 scounts_lf = io_given_lf(ssent,sast,sparams,s_type='S',v=2)
-scounts_all = io_all(ssent,sparams,v=2)
+scounts_all = io_all(ssent,sparams,s_type='S',v=2)
 print("Counts LF")
 print_lex(scounts_lf)
-assert(scounts_lf[('a',)][(N,A())] == math.exp(1))
+assert(scounts_lf[('a',)][(N,A())] == 1) #math.exp(1))
 print("Counts all")
 print_lex(scounts_all)
 
@@ -74,25 +74,26 @@ ast = V_Like(N_FruitFlies(),N_Bananas())
 print("Counts LF")
 counts_lf = io_given_lf(sent,ast,params,s_type='S',v=2)
 print("Counts all")
-counts_all = io_all(sent,params)
+counts_all = io_all(sent,params,s_type='S')
 #print("Counts LF")
 #print_lex(counts_lf)
 v1 = math.exp(n_fruitflies+v_like+n_bananas)
 v2 = math.exp(a_fruit+n_flies+v_like+n_bananas)
 v3 = math.exp(n_fruit+v_flies+p_like+n_bananas)
+Z = v1+v2+v3
 print(v1,v2,v3)
 
 def approx_eq(x,y):
     return abs(x-y)<=0.0001
 
-assert(approx_eq(counts_lf[('fruit','flies')][(N, N_FruitFlies())],v1))
-assert(approx_eq(counts_lf[('like',)][(FS(BS(S,N),N), V_Like(Var(1),Var(0)))],v1))
-assert(approx_eq(counts_lf[('bananas',)][(N, N_Bananas())],v1))
+assert(approx_eq(counts_lf[('fruit','flies')][(N, N_FruitFlies())],1))
+assert(approx_eq(counts_lf[('like',)][(FS(BS(S,N),N), V_Like(Var(1),Var(0)))],1))
+assert(approx_eq(counts_lf[('bananas',)][(N, N_Bananas())],1))
 #print("Counts all")
 #print_lex(counts_all)
-assert(approx_eq(counts_all[('fruit','flies')][(N, N_FruitFlies())],v1))
-assert(approx_eq(counts_all[('like',)][(FS(BS(S,N),N), V_Like(Var(1),Var(0)))],v1+v2))
-assert(approx_eq(counts_all[('bananas',)][(N, N_Bananas())],v1+v2+v3))
+assert(approx_eq(counts_all[('fruit','flies')][(N, N_FruitFlies())],v1/Z))
+assert(approx_eq(counts_all[('like',)][(FS(BS(S,N),N), V_Like(Var(1),Var(0)))],(v1+v2)/Z))
+assert(approx_eq(counts_all[('bananas',)][(N, N_Bananas())],(v1+v2+v3)/Z))
 
 for i in params:
     for j in params[i]:

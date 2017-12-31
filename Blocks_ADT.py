@@ -125,36 +125,16 @@ if __name__=='__main__':
             Add(All(), Orange()),
             Add(All(),Cyan()),
             Add(All(),Red())]
-    """"""
     exs = map(lambda x: (toNLUsingRules(blocksRules1,x),x),asts)
     """
     exs = map(lambda x: (lambda ast: (toNLUsingRules(blocksRules1,ast),ast))(Remove(With(x))), [Brown(), Orange(), Cyan(), Red()])
     """
     pp.pprint(exs)
     #test learning
-    params = learn_ccg(exs,init_params={},decay_f=lambda x: 1/(1+0.1*x),step_size=0.1,T=10,epochs=10,init_theta=0.01,v=1)
+    params = learn_ccg(exs,init_params={},decay_f=lambda x: 1/(1+0.1*x),step_size=0.1,T=10,epochs=10,init_theta=0.01,v=0)
     print_lex(params)
     """
     for (sent,ast) in exs:
         print(sent)
         print(just_parse(words(sent),ast,params))
-    """
-    """
-    print(Brown())
-    print(With(Brown()))
-    subtrees = get_subtrees(With(Brown()))
-    print(subtrees)
-    lf = Add(With(Brown),Orange())
-    subtrees = get_subtrees(lf)
-    print(subtrees)
-    (ccg_type, ast) = (FS(FS('Act','Set'),'Color'), Add(Var(1),Var(0)))
-    (success, dic) = matchLists(ccg_type, FS(Var(0),Var(1)))
-    if success:
-        (ccg_type2,ast2)=('Color', Orange())
-        if ccg_type2==dic[1]:
-            ast3 = papply(ast,ast2)
-            entry=(dic[0],ast3)
-            #print(ast3 in subtrees)
-            print(entry)
-            print(ast3 in subtrees)
     """
