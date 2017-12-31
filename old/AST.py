@@ -138,6 +138,8 @@ testInstructions = [Cyan,
 # SET-SET: input type 4
 # ==================
 
+
+# OLD VERSION 
 # no valid functions: # (0, 0), (3, 1), (3, 2), (1, 1), (1, 0), (2, 1), (4, 1), (4, 0)
 
 # only valid functions: (3, 0), (2, 0), (0, 1), (0, 2), (1, 2), (2, 2), (4, 2)
