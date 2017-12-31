@@ -190,7 +190,7 @@ def update_dp_entry(arr,i,j,entry,l_entry,r_entry,extended=True): #,mid
         val = l_entry*r_entry
         dict_add(arr[i][j],entry,val)
 
-def inside_lf(sent,log_form,params,cands=[],word_limit=2,default_theta=0.01,extended=True):
+def inside_lf(sent,log_form,params,cands=[],word_limit=2,default_theta=0.01,extended=True,v=1):
     """
     Runs the `inside` part of the IO algorithm when the logical form of the sentence is given. Only subtrees of the logical form are kept.
     Args:
@@ -214,7 +214,7 @@ def inside_lf(sent,log_form,params,cands=[],word_limit=2,default_theta=0.01,exte
             update_dp_entry(arr,i,k,comb_key,l_entry,r_entry)
     else:
         def comb_fun(i,j,k,l_key,r_key,comb_key):
-            dict_add(alpha[i][k], comb_key, alpha[i][j][l_key]*alpha[j+1][k][r_key])
+            dict_add(arr[i][k], comb_key, arr[i][j][l_key]*arr[j+1][k][r_key])
     #0<=d<=l-1
     for d in range(l):
         #0<=i<=l-1-d
@@ -222,6 +222,7 @@ def inside_lf(sent,log_form,params,cands=[],word_limit=2,default_theta=0.01,exte
             j=i+d
             if d<word_limit:
                 phrase = tuple(sent[i:j+1])
+                #print(phrase,phrase in params)
                 if phrase in params:
                     #parse strings of d+1 consecutive words
                     for key in params[phrase]:
@@ -230,7 +231,7 @@ def inside_lf(sent,log_form,params,cands=[],word_limit=2,default_theta=0.01,exte
                         val = math.exp(theta)
                         #create entry
                         arr[i][j][key] = [val,val, (i,j,key), set()] if extended else val
-                        dict_ladd(phrase_locs,phrase,(i,j))
+                    dict_ladd(phrase_locs,phrase,(i,j))
                 for cand in cands:
                     #if candidate is not already included, parse it with score `default_theta`.
                     if not(phrase in params and cand in params[phrase]):
@@ -240,10 +241,14 @@ def inside_lf(sent,log_form,params,cands=[],word_limit=2,default_theta=0.01,exte
             #0<=k<d
             for k in range(d):
                 lr_apps(comb_fun,arr,i,i+k,j,has_ast=True)
+    if v>=2:
+        print("inside_lf")
+        print(arr)
+        print(phrase_locs)
     return arr,phrase_locs
 
-def just_parse(sent,log_form,params,s_type='Act',v=1):
-    return parse(sent,log_form,params,cands=[],s_type='Act',word_limit=0,default_theta=0,v=1)[2]
+def just_parse(sent,log_form,params,s_type='Act',word_limit=2,v=1):
+    return parse(sent,log_form,params,cands=[],s_type='Act',word_limit=word_limit,default_theta=0,v=1)[2]
 
 def parse(sent,log_form,params,cands=[],s_type='Act',word_limit=2,default_theta=0.01,v=1):
     """
@@ -253,7 +258,7 @@ def parse(sent,log_form,params,cands=[],s_type='Act',word_limit=2,default_theta=
         s_type (string): type of sentence
     """
     l=len(sent)
-    arr,_ = inside_lf(sent,log_form,params,cands,word_limit,default_theta,extended=True)
+    arr,_ = inside_lf(sent,log_form,params,cands,word_limit,default_theta,extended=True,v=v)
     if not((s_type,log_form) in arr[0][l-1]):
         if v>=1:
             pp = pprint.PrettyPrinter(indent=1)
@@ -271,7 +276,7 @@ def parse(sent,log_form,params,cands=[],s_type='Act',word_limit=2,default_theta=
             print("%s := %s : %s" % (unwords(phrase), print_ast(ccg_type), print_ast(ast)))         
     return arr[0][l-1][(s_type,log_form)]
 
-def outside_given_lf(sent,log_form,params,s_type,alpha):
+def outside_given_lf(sent,log_form,params,s_type,alpha,v=1):
     """
     Runs the `outside` part of the IO algorithm when the logical form of the sentence is given. Requires `alpha` output of `inside_lf`.
     """
@@ -282,13 +287,21 @@ def outside_given_lf(sent,log_form,params,s_type,alpha):
         if comb_key in alpha[i][k]:
             if not(l_key in beta[i][j]):
                 beta[i][j][l_key]=0
-            beta[i][j][l_key] += alpha[j+1][k][r_key]*beta[i][k][comb_key]
+            #print(i,j,k,l_key,r_key,comb_key,comb_key in beta[i][k])
+            if comb_key in beta[i][k]:
+                #print("Key",i,k,comb_key)
+                beta[i][j][l_key] += alpha[j+1][k][r_key]*beta[i][k][comb_key]
+            #else:
+            #    print("Missing key",i,k,comb_key)
     #B->CA
     def comb_fun_r(i,j,k,l_key,r_key,comb_key):
         if comb_key in alpha[i][k]:
             if not(r_key in beta[j+1][k]):
                 beta[j+1][k][r_key]=0
-            beta[j+1][k][r_key] += alpha[i][j][l_key]*beta[i][k][comb_key]
+            if comb_key in beta[i][k]:
+                beta[j+1][k][r_key] += alpha[i][j][l_key]*beta[i][k][comb_key]
+            #else:
+            #    print("Missing key",i,k,comb_key)
     for d in range(l-1,-1,-1):
         for i in range(l-d):
             j=i+d
@@ -300,24 +313,31 @@ def outside_given_lf(sent,log_form,params,s_type,alpha):
             for k in range(0,i):
                 #B->CA
                 lr_apps(comb_fun_r,alpha,k,i-1,j)
+    if v>=2:
+        print("outside_lf")
+        print(beta)
     return beta
     #mu(A,i,j)=alpha(A,i,j)beta(A,i,j)
                     
-def io_given_lf(sent,log_form,params,s_type='Act'):
+def io_given_lf(sent,log_form,params,s_type='Act',word_limit=2,v=1):
     """
     Full IO algorithm given logical form
     """
     #INSIDE
-    alpha, phrase_locs = inside_lf(sent,log_form,params,cands=[],word_limit=0,default_theta=0,extended=False)
+    alpha, phrase_locs = inside_lf(sent,log_form,params,cands=[],word_limit=word_limit,default_theta=0,extended=False,v=v)
     #OUTSIDE
-    beta = outside_given_lf(sent,log_form,params,s_type,alpha)
+    beta = outside_given_lf(sent,log_form,params,s_type,alpha,v=v)
     l = len(sent)
     counts={}
     for (phrase,li) in phrase_locs.iteritems():
         if not(phrase in counts):
             counts[phrase]={}
-        for key in params[phrase]:
-            counts[phrase][entry] = params[phrase][entry]*sum([beta[i][j][entry] for (i,j) in li])
+        for entry in params[phrase]:
+            counts[phrase][entry] = math.exp(params[phrase][entry])*sum([beta[i][j][entry] for (i,j) in li if entry in beta[i][j]])
+    if v>=1:
+        print("Counts given AST:")
+        print("=================")
+        print(print_lex(counts))
     return counts
 
 """
@@ -325,7 +345,7 @@ Parsing & IO algorithm when logical form is not given. We use coarser informatio
 Namely, we only keep CCGType, and not (CCGType,AST).
 This is important because there are too many possible AST's.
 """
-def inside_all(sent,params):
+def inside_all(sent,params,v=1):
     l = len(sent)
     alpha = [[{} for i in range(l)] for j in range(l)]
     phrase_locs = {}
@@ -335,6 +355,7 @@ def inside_all(sent,params):
         for i in range(l-d):
             j=i+d
             phrase = tuple(sent[i:j+1])
+            #print(phrase,phrase in params)
             #terminals
             if phrase in params:
                 typ_d = params[phrase]
@@ -345,9 +366,13 @@ def inside_all(sent,params):
             #combinations
             for k in range(d):
                 lr_apps(comb_fun,alpha,i,i+k,j,has_ast=False)
+    if v>=2:
+        print("inside_all")
+        print(alpha)
+        print(phrase_locs)
     return alpha, phrase_locs
 
-def outside_all(sent,params,alpha):
+def outside_all(sent,params,alpha,v=1):
     l = len(sent)
     beta = [[{} for i in range(l)] for j in range(l)]
     #B->AC
@@ -376,9 +401,12 @@ def outside_all(sent,params,alpha):
             for k in range(0,i):
                 #B->CA
                 lr_apps(comb_fun_r,alpha,k,i-1,j,has_ast=False)
+    if v>=2:
+        print("outside_all")
+        print(v)
     return beta
 
-def io_all(sent,params):
+def io_all(sent,params,v=1):
     """
     Full IO algorithm, not given logical form
     `params` is in form `{tuple(string): {(ccg_type, ast): float}}`
@@ -402,11 +430,15 @@ def io_all(sent,params):
         if not(phrase in counts):
             counts[phrase]={}
         #print(phrase,li,params[phrase])
-        #use original `params` here
+        #use original `params` here. remember to exp
         for entry in params[phrase]:
-            counts[phrase][entry] = params[phrase][entry]*sum([beta[i][j][entry[0]] for (i,j) in li if entry[0] in beta[i][j]]) #check this is OK
+            counts[phrase][entry] = math.exp(params[phrase][entry])*sum([beta[i][j][entry[0]] for (i,j) in li if entry[0] in beta[i][j]]) #check this is OK
             #entry[0] is the ccg_type, only that matters here
     #print("counts", counts)
+    if v>=1:
+        print("Counts given AST:")
+        print("=================")
+        print(print_lex(counts))
     return counts    
 
 def add_lex(params,lexes,init_theta=0.01):
@@ -424,10 +456,11 @@ def add_lex(params,lexes,init_theta=0.01):
         params[phrase][entry]=init_theta
     return params
 
-def estimate1(params,ex,alpha,s_type='Act'):
+def estimate1(params,ex,alpha,s_type='Act',word_limit=2,v=0):
     (sent,ast)=ex
-    counts_lf = io_given_lf(sent,ast,params,s_type=s_type)
-    counts_all = io_all(sent,params)
+    counts_lf = io_given_lf(sent,ast,params,s_type=s_type,word_limit=word_limit,v=v)
+    #(sent,log_form,params,s_type='Act',word_limit=2,v=1
+    counts_all = io_all(sent,params,v=v)
     #Calculate gradients. (Gradient is E(count|S,L) - E(count|S), see calculation in ZC, p. 4.)
     for (phrase,d) in counts_lf.iteritems():
         for (entry, theta) in d.iteritems():
@@ -438,15 +471,16 @@ def estimate1(params,ex,alpha,s_type='Act'):
             params[phrase][entry] = params[phrase][entry] - alpha*theta
     return params
 
-def estimate(params,exs,decay_f=lambda x: 1/(1+0.01*x),step_size=0.1,epochs=100,s_type='Act'):
+#estimate1(params,ex,alpha,s_type='Act',word_limit=2,v=0):
+def estimate(params,exs,decay_f=lambda x: 1/(1+0.01*x),step_size=0.1,epochs=100,s_type='Act',word_limit=2,v=0):
     t=0
     for k in range(epochs):
         for ex in exs:
-            params = estimate1(params,ex,step_size*(decay_f(t)),s_type)
+            params = estimate1(params,ex,step_size*(decay_f(t)),s_type=s_type,word_limit=word_limit,v=v)
             t+=1
     return params
 
-def learn_ccg(exs,init_params={},decay_f=lambda x: 1/(1+0.01*x),step_size=0.1,T=100,epochs=10,init_theta=0.01,s_type='Act'):
+def learn_ccg(exs,init_params={},decay_f=lambda x: 1/(1+0.01*x),step_size=0.1,T=100,epochs=10,init_theta=0.01,s_type='Act',word_limit=2,v=0):
     """
     Implements CCG learning algorithm in Zettlemoyer-Collins.
 
@@ -467,11 +501,12 @@ def learn_ccg(exs,init_params={},decay_f=lambda x: 1/(1+0.01*x),step_size=0.1,T=
         lexes = set()
         for (i,((sent,ast), cands)) in enumerate(exs_with_lex):
             #val, hi, hi_parse
-            (_,_,_,lex)=parse(sent,ast,params,cands=cands)
+            (_,_,_,lex)=parse(sent,ast,params,cands=cands,s_type=s_type,word_limit=word_limit,default_theta=init_theta,v=v)
             lexes = lexes.union(lex)
         #add all of them at once (compare with adding one at a time?)
+        #if t==0:
         params = add_lex(params,lexes,init_theta)
-        params = estimate(params,exs,decay_f=decay_f,step_size=step_size,epochs=epochs,s_type=s_type)
+        params = estimate(params,exs,decay_f=decay_f,step_size=step_size,epochs=epochs,s_type=s_type,word_limit=word_limit,v=v)
     return params
 
 #cands = gen_cands(log_form)

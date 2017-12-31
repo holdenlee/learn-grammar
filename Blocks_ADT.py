@@ -119,26 +119,26 @@ if __name__=='__main__':
     asts = [Remove(With(Brown())),
             Remove(With(Orange())),
             Remove(With(Cyan())),
-            Remove(With(Red()))] #,
-    """
+            Remove(With(Red())),
             Remove(All()),
             Add(All(), Brown()),
             Add(All(), Orange()),
             Add(All(),Cyan()),
             Add(All(),Red())]
-    """
+    """"""
     exs = map(lambda x: (toNLUsingRules(blocksRules1,x),x),asts)
     """
     exs = map(lambda x: (lambda ast: (toNLUsingRules(blocksRules1,ast),ast))(Remove(With(x))), [Brown(), Orange(), Cyan(), Red()])
     """
     pp.pprint(exs)
     #test learning
-    params = learn_ccg(exs,init_params={},decay_f=lambda x: 1/(1+0.1*x),step_size=0.1,T=10,epochs=10,init_theta=0.01)
+    params = learn_ccg(exs,init_params={},decay_f=lambda x: 1/(1+0.1*x),step_size=0.1,T=10,epochs=10,init_theta=0.01,v=1)
     print_lex(params)
+    """
     for (sent,ast) in exs:
         print(sent)
         print(just_parse(words(sent),ast,params))
-
+    """
     """
     print(Brown())
     print(With(Brown()))
