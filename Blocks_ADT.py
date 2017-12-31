@@ -46,6 +46,24 @@ if __name__=='__main__':
                     (Rightmost(All()), "rightmost block"),
                     (Leftmost(1), "leftmost $1"),
                     (Rightmost(1), "rightmost $1")]
+    asts = [Remove(With(Brown())),
+            Remove(With(Orange())),
+            Remove(With(Cyan())),
+            Remove(With(Red())),
+            Remove(All()),
+            Add(All(), Brown()),
+            Add(All(), Orange()),
+            Add(All(),Cyan()),
+            Add(All(),Red())]
+    exs = map(lambda x: (toNLUsingRules(blocksRules1,x),x),asts)
+    pp.pprint(exs)
+    #test learning
+    params = learn_ccg(exs,init_params={},decay_f=lambda x: 1/(1+0.1*x),step_size=0.1,T=10,epochs=10,init_theta=0.01,v=0)
+    print_lex(params)
+
+
+
+    """
     def Diff(x,y):
         return Int(x,Not(y))
     blocksRules2 = [(Cyan(), "cyan"),
@@ -76,6 +94,7 @@ if __name__=='__main__':
         #print(toNLUsingRules(blocksRules2, tree))
         pass
     """
+    """
     log_form = Remove(With(Brown()))
     sent = words(toNLUsingRules(blocksRules1, log_form))
     print(log_form, sent)
@@ -89,16 +108,6 @@ if __name__=='__main__':
     #log_form = Add(Diff(With(Brown()),Rightmost(All())), Orange())
     #sent = words(toNLUsingRules(blocksRules1, log_form))
     #sent = words("Add orange brown blocks that are not rightmost block.")
-    """
-    log_form = Add(With(Brown()), Orange())
-    sent = words("Add orange brown blocks")
-    print(log_form, sent)
-    cands = gen_cands(log_form,v=1)
-    params = {}
-    #NEED TO ADD IDENTITY PARSES
-    parse(sent,log_form,params,cands,v=1)
-    print(print_ast(log_form))
-    """
     #print(print_ast(FS(BS('A','B'),'C')))
     """
     asts = [Remove(With(Brown())),
@@ -115,24 +124,9 @@ if __name__=='__main__':
             Remove(Leftmost(All())),
             Add(Diff(With(Brown()),Rightmost(All())), Orange())]
     exs = map(lambda x: (toNLUsingRules(blocksRules1,x),x),asts)
-    """
-    asts = [Remove(With(Brown())),
-            Remove(With(Orange())),
-            Remove(With(Cyan())),
-            Remove(With(Red())),
-            Remove(All()),
-            Add(All(), Brown()),
-            Add(All(), Orange()),
-            Add(All(),Cyan()),
-            Add(All(),Red())]
-    exs = map(lambda x: (toNLUsingRules(blocksRules1,x),x),asts)
-    """
     exs = map(lambda x: (lambda ast: (toNLUsingRules(blocksRules1,ast),ast))(Remove(With(x))), [Brown(), Orange(), Cyan(), Red()])
     """
-    pp.pprint(exs)
-    #test learning
-    params = learn_ccg(exs,init_params={},decay_f=lambda x: 1/(1+0.1*x),step_size=0.1,T=10,epochs=10,init_theta=0.01,v=0)
-    print_lex(params)
+
     """
     for (sent,ast) in exs:
         print(sent)
