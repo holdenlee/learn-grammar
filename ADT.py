@@ -1,4 +1,6 @@
 from utils import *
+import random
+from functools import partial 
 #Emulates algebraic data types
 
 #constructors are assumed to be uniquely identified by name (no overloading)
@@ -135,6 +137,66 @@ def toNLUsingRules(rlist, tree):
                 string = string.replace("$"+str(k), d[k])
             return string
     return None #failed
+
+# typ = None means no type in particular, just sample regularly
+def sample_func_of_type(dic, typ):
+    is_done = False
+    func = None 
+    while(not is_done): 
+        rkey = random.choice(dic.keys())
+        if dic[rkey].typ == typ or (typ == None):
+            is_done = True 
+            func = dic[rkey]
+    return func
+
+def sample_func_with_no_args_of_type(dic, typ):
+    is_done = False
+    func = None 
+    while(not is_done): 
+        rkey = random.choice(dic.keys())
+        if len(dic[rkey].args) == 0 and dic[rkey].typ == typ:
+            is_done = True 
+            func = dic[rkey]
+    return func   
+
+def build_random_func_recursive(dic, curr_typ, curr_depth, max_depth):
+    if curr_depth < max_depth:
+        curr_func = sample_func_of_type(dic, curr_typ)
+    else:
+        curr_func = sample_func_with_no_args_of_type(dic, curr_typ)
+    curr_new_arg_typs = curr_func.args 
+    arg_funcs = []
+    for arg_typ in curr_new_arg_typs:
+        new_func = build_random_func_recursive(dic, arg_typ, curr_depth + 1, max_depth)
+        arg_funcs.append(new_func)
+    if len(arg_funcs) == 0:
+        iterated_func_application = [curr_func()]
+    else:
+        iterated_func_application = [curr_func]
+        for i in range(len(arg_funcs)): 
+            arg = arg_funcs[i]
+            if i < len(arg_funcs) - 1:
+                curr_app = partial(iterated_func_application[i], arg)
+            else:
+                curr_app = iterated_func_application[i](arg)
+            iterated_func_application.append(curr_app)
+    final_func = iterated_func_application[len(iterated_func_application) - 1]
+    return final_func 
+
+def build_random_function(dic, max_depth):
+    return build_random_func_recursive(dic, None, 0, max_depth)
+        
+# N is number of data points
+# T is depth 
+def generate_training_data(dic, rules, N, T):
+    data = []
+    for i in range(N):
+        # generate new tree
+        tree = build_random_function(dic, T)
+        tree_str = toNLUsingRules(rules, tree)
+        print("tree: " + str(tree) + ", " + "tree_str: " + str(tree_str))
+        data.append((tree, tree_str))
+    return data
 
 if __name__=='__main__':
     c = Constructor('Add', 'Act', ['Set','Color'])

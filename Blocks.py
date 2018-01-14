@@ -2,7 +2,7 @@ from ADT import *
 from CCG import *
 from utils import *
 
-import pprint
+import pprint 
 
 #https://stackoverflow.com/questions/14078357/python-how-can-idynamically-create-a-function-with-a-name-based-on-a-string-re
 def make_global_vars(d):
@@ -25,6 +25,7 @@ cons_dict = {Color : {'Cyan':[],
          Act : {'Add':[Set,Color],
                 'Remove':[Set]}} 
 #Note I use Int=intersection rather than Diff as originally, because Diff(f,g)=Int(f,Not(g))
+
 
 if __name__=='__main__':
     dic=create_PL(cons_dict)
@@ -57,9 +58,12 @@ if __name__=='__main__':
             Add(All(),Red())]
     exs = map(lambda x: (toNLUsingRules(blocksRules1,x),x),asts)
     pp.pprint(exs)
+    print("DATA")
+    data = generate_training_data(dic, blocksRules1, 10, 4)
+    pp.pprint(data)
     #test learning
-    params = learn_ccg(exs,init_params={},decay_f=lambda x: 1/(1+0.1*x),step_size=0.1,T=10,epochs=10,init_theta=0.01,v=0)
-    print_lex(params)
+    #params = learn_ccg(exs,init_params={},decay_f=lambda x: 1/(1+0.1*x),step_size=0.1,T=10,epochs=10,init_theta=0.01,v=0)
+    #print_lex(params)
 
 
 
