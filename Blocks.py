@@ -71,7 +71,7 @@ if __name__=='__main__':
         start_time = time.time()
         params = learn_ccg(data,init_params={},decay_f=lambda x: 1/(1+0.1*x),step_size=0.1,T=10,epochs=10,init_theta=0.01,v=0)
         end_time = time.time()
-        print("Execution time: %g seconds" % end_time - start_time)
+        print("Execution time:" + str(end_time - start_time) + " seconds")
         print("===============================")
         #print_lex(params)
         code_execution_time_data_set_size.append((data_set_size, end_time - start_time))
