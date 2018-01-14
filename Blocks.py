@@ -56,14 +56,15 @@ if __name__=='__main__':
             Add(All(), Orange()),
             Add(All(),Cyan()),
             Add(All(),Red())]
-    exs = map(lambda x: (toNLUsingRules(blocksRules1,x),x),asts)
-    pp.pprint(exs)
+    #print("EXS")
+    #exs = map(lambda x: (toNLUsingRules(blocksRules1,x),x),asts)
+    #pp.pprint(exs)
     print("DATA")
-    data = generate_training_data(dic, blocksRules1, 10, 4)
+    data = generate_training_data(dic, blocksRules1, 'Act', 10, 4)
     pp.pprint(data)
     #test learning
-    #params = learn_ccg(exs,init_params={},decay_f=lambda x: 1/(1+0.1*x),step_size=0.1,T=10,epochs=10,init_theta=0.01,v=0)
-    #print_lex(params)
+    params = learn_ccg(data,init_params={},decay_f=lambda x: 1/(1+0.1*x),step_size=0.1,T=10,epochs=10,init_theta=0.01,v=0)
+    print_lex(params)
 
 
 

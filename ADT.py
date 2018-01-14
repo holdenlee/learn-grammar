@@ -183,19 +183,19 @@ def build_random_func_recursive(dic, curr_typ, curr_depth, max_depth):
     final_func = iterated_func_application[len(iterated_func_application) - 1]
     return final_func 
 
-def build_random_function(dic, max_depth):
-    return build_random_func_recursive(dic, None, 0, max_depth)
+def build_random_function(dic, func_type, max_depth):
+    return build_random_func_recursive(dic, func_type, 0, max_depth)
         
 # N is number of data points
 # T is depth 
-def generate_training_data(dic, rules, N, T):
+def generate_training_data(dic, rules, data_func_type, N, T):
     data = []
     for i in range(N):
         # generate new tree
-        tree = build_random_function(dic, T)
+        tree = build_random_function(dic, data_func_type, T)
         tree_str = toNLUsingRules(rules, tree)
-        print("tree: " + str(tree) + ", " + "tree_str: " + str(tree_str))
-        data.append((tree, tree_str))
+        #print("tree: " + str(tree) + ", " + "tree_str: " + str(tree_str))
+        data.append((tree_str, tree))
     return data
 
 if __name__=='__main__':
