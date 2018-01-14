@@ -3,6 +3,7 @@ from CCG import *
 from utils import *
 
 import pprint 
+import time
 
 #https://stackoverflow.com/questions/14078357/python-how-can-idynamically-create-a-function-with-a-name-based-on-a-string-re
 def make_global_vars(d):
@@ -59,12 +60,22 @@ if __name__=='__main__':
     #print("EXS")
     #exs = map(lambda x: (toNLUsingRules(blocksRules1,x),x),asts)
     #pp.pprint(exs)
-    print("DATA")
-    data = generate_training_data(dic, blocksRules1, 'Act', 10, 4)
-    pp.pprint(data)
-    #test learning
-    params = learn_ccg(data,init_params={},decay_f=lambda x: 1/(1+0.1*x),step_size=0.1,T=10,epochs=10,init_theta=0.01,v=0)
-    print_lex(params)
+
+    # test learning execution time for datasets with depth 2
+    code_execution_time_data_set_size = []
+    for data_set_size in range(10, 1010, 100):
+        print("DATA: Size = " + str(data_set_size))
+        data = generate_training_data(dic, blocksRules1, 'Act', data_set_size, 2)
+        #pp.pprint(data)
+        #test learning
+        start_time = time.time()
+        params = learn_ccg(data,init_params={},decay_f=lambda x: 1/(1+0.1*x),step_size=0.1,T=10,epochs=10,init_theta=0.01,v=0)
+        end_time = time.time()
+        print("Execution time: %g seconds" % end_time - start_time)
+        print("===============================")
+        #print_lex(params)
+        code_execution_time_data_set_size.append((data_set_size, end_time - start_time))
+    print code_execution_time_data_set_size
 
 
 
